@@ -1,6 +1,6 @@
 /*!
  * Vue.js v2.6.14
- * (c) 2014-2021 Evan You
+ * (c) 2014-2022 Evan You
  * Released under the MIT License.
  */
 (function (global, factory) {
@@ -9077,9 +9077,17 @@
   extend(Vue.options.components, platformComponents);
 
   // install platform patch function
+  /* 
+    设置patch函数
+    1. 初始化 虚拟dom(vdom)转真实dom
+    2. update diff 更新操作
+  */
   Vue.prototype.__patch__ = inBrowser ? patch : noop;
 
   // public mount method
+  /*
+    设置$mount函数
+  */
   Vue.prototype.$mount = function (
     el,
     hydrating
@@ -11922,14 +11930,14 @@
     var el = query(id);
     return el && el.innerHTML
   });
-
+  // 扩展$mount方法(这个扩展主要是是获取render或者el、template转换为render)
   var mount = Vue.prototype.$mount;
   Vue.prototype.$mount = function (
-    el,
+    el,// 字符串或dom元素
     hydrating
   ) {
+    // 获取指定el元素
     el = el && query(el);
-
     /* istanbul ignore if */
     if (el === document.body || el === document.documentElement) {
       warn(
@@ -11939,9 +11947,11 @@
     }
 
     var options = this.$options;
+    // 先判断是否添加了render，所以优先级最高
     // resolve template/el and convert to render function
     if (!options.render) {
       var template = options.template;
+      // 在判断是否添加了template，如果没有则使用el
       if (template) {
         if (typeof template === 'string') {
           if (template.charAt(0) === '#') {
@@ -11963,14 +11973,15 @@
           return this
         }
       } else if (el) {
-        template = getOuterHTML(el);
+        // 没有render、template的话使用el选项。
+        template = getOuterHTML(el);//还是要转化为template
       }
       if (template) {
         /* istanbul ignore if */
         if (config.performance && mark) {
           mark('compile');
         }
-
+        // 将template编译为render(最主要的：compileToFunctions核心函数)
         var ref = compileToFunctions(template, {
           outputSourceRange: "development" !== 'production',
           shouldDecodeNewlines: shouldDecodeNewlines,
@@ -11980,6 +11991,7 @@
         }, this);
         var render = ref.render;
         var staticRenderFns = ref.staticRenderFns;
+        // 赋值给组件选项
         options.render = render;
         options.staticRenderFns = staticRenderFns;
 
@@ -12012,3 +12024,4 @@
   return Vue;
 
 }));
+//# sourceMappingURL=vue.js.map

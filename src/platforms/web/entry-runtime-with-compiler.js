@@ -13,14 +13,14 @@ const idToTemplate = cached(id => {
   const el = query(id)
   return el && el.innerHTML
 })
-
+// 扩展$mount方法(这个扩展主要是是获取render或者el、template转换为render)
 const mount = Vue.prototype.$mount
 Vue.prototype.$mount = function (
-  el?: string | Element,
+  el?: string | Element,// 字符串或dom元素
   hydrating?: boolean
 ): Component {
+  // 获取指定el元素
   el = el && query(el)
-
   /* istanbul ignore if */
   if (el === document.body || el === document.documentElement) {
     process.env.NODE_ENV !== 'production' && warn(
@@ -30,9 +30,11 @@ Vue.prototype.$mount = function (
   }
 
   const options = this.$options
+  // 先判断是否添加了render，所以优先级最高
   // resolve template/el and convert to render function
   if (!options.render) {
     let template = options.template
+    // 在判断是否添加了template，如果没有则使用el
     if (template) {
       if (typeof template === 'string') {
         if (template.charAt(0) === '#') {
@@ -54,14 +56,15 @@ Vue.prototype.$mount = function (
         return this
       }
     } else if (el) {
-      template = getOuterHTML(el)
+      // 没有render、template的话使用el选项。
+      template = getOuterHTML(el);//还是要转化为template
     }
     if (template) {
       /* istanbul ignore if */
       if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
         mark('compile')
       }
-
+      // 将template编译为render(最主要的：compileToFunctions核心函数)
       const { render, staticRenderFns } = compileToFunctions(template, {
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,
@@ -69,6 +72,7 @@ Vue.prototype.$mount = function (
         delimiters: options.delimiters,
         comments: options.comments
       }, this)
+      // 赋值给组件选项
       options.render = render
       options.staticRenderFns = staticRenderFns
 
