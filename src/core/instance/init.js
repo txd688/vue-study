@@ -29,6 +29,7 @@ export function initMixin (Vue: Class<Component>) {
     // a flag to avoid this being observed
     vm._isVue = true
     // merge options
+    // 合并选项：将用户选项和系统默认选项合并
     if (options && options._isComponent) {
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
@@ -48,15 +49,17 @@ export function initMixin (Vue: Class<Component>) {
       vm._renderProxy = vm
     }
     // expose real self
+    // 初始化过程
     vm._self = vm
-    initLifecycle(vm)
-    initEvents(vm)
-    initRender(vm)
-    callHook(vm, 'beforeCreate')
-    initInjections(vm) // resolve injections before data/props
-    initState(vm)
+    initLifecycle(vm) // $children、$root...
+    initEvents(vm) // 自定义事件监听
+    initRender(vm) // 插槽解析、_c、$createElement()
+    callHook(vm, 'beforeCreate') // 生命周期钩子：beforeCreate
+    // 初始化组件各种状态：
+    initInjections(vm) // resolve injections before data/props 
+    initState(vm) // props、methods、data
     initProvide(vm) // resolve provide after data/props
-    callHook(vm, 'created')
+    callHook(vm, 'created')// 生命周期钩子：created
 
     /* istanbul ignore if */
     if (process.env.NODE_ENV !== 'production' && config.performance && mark) {
@@ -64,7 +67,7 @@ export function initMixin (Vue: Class<Component>) {
       mark(endTag)
       measure(`vue ${vm._name} init`, startTag, endTag)
     }
-
+    // 如果设置了el选项，则自动调用$mount方法
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)
     }

@@ -991,6 +991,7 @@
       return
     }
     var ob;
+    // 已经是响应式对象，直接返回，不做重复处理
     if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
       ob = value.__ob__;
     } else if (
@@ -3509,6 +3510,7 @@
     var options = vm.$options;
     var parentVnode = vm.$vnode = options._parentVnode; // the placeholder node in parent tree
     var renderContext = parentVnode && parentVnode.context;
+    // 插槽的解析
     vm.$slots = resolveSlots(options._renderChildren, renderContext);
     vm.$scopedSlots = emptyObject;
     // bind the createElement fn to this instance
@@ -3518,6 +3520,7 @@
     vm._c = function (a, b, c, d) { return createElement(vm, a, b, c, d, false); };
     // normalization is always applied for the public version, used in
     // user-written render functions.
+    // render(h)方法里的h就是 vm.$createElement
     vm.$createElement = function (a, b, c, d) { return createElement(vm, a, b, c, d, true); };
 
     // $attrs & $listeners are exposed for easier HOC creation.
@@ -4748,6 +4751,7 @@
       }
     }
     // observe data
+    // 对data 进行响应式处理
     observe(data, true /* asRootData */);
   }
 
@@ -4988,6 +4992,7 @@
       // a flag to avoid this being observed
       vm._isVue = true;
       // merge options
+      // 合并选项：将用户选项和系统默认选项合并
       if (options && options._isComponent) {
         // optimize internal component instantiation
         // since dynamic options merging is pretty slow, and none of the
@@ -5005,15 +5010,17 @@
         initProxy(vm);
       }
       // expose real self
+      // 初始化过程
       vm._self = vm;
-      initLifecycle(vm);
-      initEvents(vm);
-      initRender(vm);
-      callHook(vm, 'beforeCreate');
-      initInjections(vm); // resolve injections before data/props
-      initState(vm);
+      initLifecycle(vm); // $children、$root...
+      initEvents(vm); // 自定义事件监听
+      initRender(vm); // 插槽解析、_c、$createElement()
+      callHook(vm, 'beforeCreate'); // 生命周期钩子：beforeCreate
+      // 初始化组件各种状态：
+      initInjections(vm); // resolve injections before data/props 
+      initState(vm); // props、methods、data
       initProvide(vm); // resolve provide after data/props
-      callHook(vm, 'created');
+      callHook(vm, 'created');// 生命周期钩子：created
 
       /* istanbul ignore if */
       if (config.performance && mark) {
@@ -5021,7 +5028,7 @@
         mark(endTag);
         measure(("vue " + (vm._name) + " init"), startTag, endTag);
       }
-
+      // 如果设置了el选项，则自动调用$mount方法
       if (vm.$options.el) {
         vm.$mount(vm.$options.el);
       }
@@ -5091,7 +5098,7 @@
     }
     this._init(options);
   }
-
+  // 实现vue的实例方法和属性
   initMixin(Vue);
   stateMixin(Vue);
   eventsMixin(Vue);
@@ -5469,6 +5476,7 @@
     initAssetRegisters(Vue);
   }
 
+  // 初始化全局API
   initGlobalAPI(Vue);
 
   Object.defineProperty(Vue.prototype, '$isServer', {

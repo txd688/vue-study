@@ -149,6 +149,7 @@ function initData (vm: Component) {
     }
   }
   // observe data
+  // 对data 进行响应式处理
   observe(data, true /* asRootData */)
 }
 

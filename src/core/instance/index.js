@@ -13,7 +13,7 @@ function Vue (options) {
   }
   this._init(options)
 }
-
+// 实现vue的实例方法和属性
 initMixin(Vue)
 stateMixin(Vue)
 eventsMixin(Vue)
