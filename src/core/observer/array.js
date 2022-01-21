@@ -6,6 +6,7 @@
 import { def } from '../util/index'
 
 const arrayProto = Array.prototype
+// 数组原型备份
 export const arrayMethods = Object.create(arrayProto)
 
 const methodsToPatch = [

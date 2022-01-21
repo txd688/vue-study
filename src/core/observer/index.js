@@ -111,6 +111,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
   if (!isObject(value) || value instanceof VNode) {
     return
   }
+  // 1.响应式。2.动态属性的加入或删除，数组的加入或删除的变更通知。
   let ob: Observer | void
   // 已经是响应式对象，直接返回，不做重复处理
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {

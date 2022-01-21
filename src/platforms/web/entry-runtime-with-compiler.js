@@ -22,6 +22,7 @@ Vue.prototype.$mount = function (
   // 获取指定el元素
   el = el && query(el)
   /* istanbul ignore if */
+  // el不能为html或者body
   if (el === document.body || el === document.documentElement) {
     process.env.NODE_ENV !== 'production' && warn(
       `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
@@ -83,6 +84,7 @@ Vue.prototype.$mount = function (
       }
     }
   }
+  // 调用$mount方法
   return mount.call(this, el, hydrating)
 }
 

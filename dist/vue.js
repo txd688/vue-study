@@ -858,6 +858,7 @@
    */
 
   var arrayProto = Array.prototype;
+  // 数组原型备份
   var arrayMethods = Object.create(arrayProto);
 
   var methodsToPatch = [
@@ -990,6 +991,7 @@
     if (!isObject(value) || value instanceof VNode) {
       return
     }
+    // 1.响应式。2.动态属性的加入或删除，数组的加入或删除的变更通知。
     var ob;
     // 已经是响应式对象，直接返回，不做重复处理
     if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
@@ -4059,8 +4061,9 @@
         }
       }
     }
-    callHook(vm, 'beforeMount');
+    callHook(vm, 'beforeMount');// 生命周期钩子
 
+    // 定义updateComponent方法，在watch回调时调用
     var updateComponent;
     /* istanbul ignore if */
     if (config.performance && mark) {
@@ -4082,27 +4085,36 @@
       };
     } else {
       updateComponent = function () {
+        // vm._render() 生成虚拟dom
+        // vm._update() 虚拟dom渲染为真实dom
         vm._update(vm._render(), hydrating);
       };
     }
 
-    // we set this to vm._watcher inside the watcher's constructor
-    // since the watcher's initial patch may call $forceUpdate (e.g. inside child
-    // component's mounted hook), which relies on vm._watcher being already defined
+    /*
+     Watcher 会在回调函数中调用updateComponent，生成虚拟dom，然后渲染成真实dom
+     Watcher 在这里起到两个作用，一个是初始化的时候会执行回调函数，另一个是当 vm 实例中的监测的数据发生变化的时候执行回调函数
+     we set this to vm._watcher inside the watcher's constructor
+     since the watcher's initial patch may call $forceUpdate (e.g. inside child
+     component's mounted hook), which relies on vm._watcher being already defined
+    */
     new Watcher(vm, updateComponent, noop, {
       before: function before () {
         if (vm._isMounted && !vm._isDestroyed) {
-          callHook(vm, 'beforeUpdate');
+          callHook(vm, 'beforeUpdate');// 生命周期钩子
         }
       }
     }, true /* isRenderWatcher */);
     hydrating = false;
-
-    // manually mounted instance, call mounted on self
-    // mounted is called for render-created child components in its inserted hook
+    /*
+      vm.$vnode==null 时，表示当前为根 Vue 的实例
+      manually mounted instance, call mounted on self
+      mounted is called for render-created child components in its inserted hook
+    */
     if (vm.$vnode == null) {
+      // 实例已经挂载，执行mounted生命周期钩子
       vm._isMounted = true;
-      callHook(vm, 'mounted');
+      callHook(vm, 'mounted');// 生命周期钩子
     }
     return vm
   }
@@ -5096,14 +5108,15 @@
     ) {
       warn('Vue is a constructor and should be called with the `new` keyword');
     }
+    // 构造函数仅执行了_init
     this._init(options);
   }
   // 实现vue的实例方法和属性
-  initMixin(Vue);
-  stateMixin(Vue);
-  eventsMixin(Vue);
-  lifecycleMixin(Vue);
-  renderMixin(Vue);
+  initMixin(Vue); // 实现init函数
+  stateMixin(Vue); // 状态相关api $data,$props,$set,$delete,$watch
+  eventsMixin(Vue); // 事件相关api $on,$once,$off,$emit
+  lifecycleMixin(Vue); // 生命周期api _update,$forceUpdate,$destroy
+  renderMixin(Vue); // 渲染api _render,$nextTick
 
   /*  */
 
@@ -11947,6 +11960,7 @@
     // 获取指定el元素
     el = el && query(el);
     /* istanbul ignore if */
+    // el不能为html或者body
     if (el === document.body || el === document.documentElement) {
       warn(
         "Do not mount Vue to <html> or <body> - mount to normal elements instead."
@@ -12010,6 +12024,7 @@
         }
       }
     }
+    // 调用$mount方法
     return mount.call(this, el, hydrating)
   };
 
