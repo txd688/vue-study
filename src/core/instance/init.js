@@ -36,6 +36,7 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // this.$options 实例属性
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -51,13 +52,13 @@ export function initMixin (Vue: Class<Component>) {
     // expose real self
     // 初始化过程
     vm._self = vm
-    initLifecycle(vm) // $children、$root...
+    initLifecycle(vm) // 初始化相关生命周期属性 $children、$root、$children、$refs
     initEvents(vm) // 自定义事件监听
-    initRender(vm) // 插槽解析、_c、$createElement()
+    initRender(vm) // 插槽解析($slots)。 render(h)方法里的h：_c() 和 $createElement()
     callHook(vm, 'beforeCreate') // 生命周期钩子：beforeCreate
-    // 初始化组件各种状态：
+    // 初始化组件各种状态、响应式
     initInjections(vm) // resolve injections before data/props 
-    initState(vm) // props、methods、data
+    initState(vm) // props、methods、data、computed、watch
     initProvide(vm) // resolve provide after data/props
     callHook(vm, 'created')// 生命周期钩子：created
 
