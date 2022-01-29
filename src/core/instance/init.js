@@ -56,7 +56,7 @@ export function initMixin (Vue: Class<Component>) {
     initEvents(vm) // 自定义事件监听
     initRender(vm) // 插槽解析($slots)。 render(h)方法里的h：_c() 和 $createElement()
     callHook(vm, 'beforeCreate') // 生命周期钩子：beforeCreate
-    // 初始化组件各种状态、响应式
+    // 初始化组件各种状态、响应式处理
     initInjections(vm) // resolve injections before data/props 
     initState(vm) // props、methods、data、computed、watch
     initProvide(vm) // resolve provide after data/props

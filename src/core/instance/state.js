@@ -49,6 +49,7 @@ export function proxy (target: Object, sourceKey: string, key: string) {
 export function initState (vm: Component) {
   vm._watchers = []
   const opts = vm.$options
+  // props、methods、data处理，优先级p》m》d
   if (opts.props) initProps(vm, opts.props)
   if (opts.methods) initMethods(vm, opts.methods)
   if (opts.data) {
@@ -112,6 +113,7 @@ function initProps (vm: Component, propsOptions: Object) {
 
 function initData (vm: Component) {
   let data = vm.$options.data
+  // 判断data是函数还是其他
   data = vm._data = typeof data === 'function'
     ? getData(data, vm)
     : data || {}
@@ -123,6 +125,7 @@ function initData (vm: Component) {
       vm
     )
   }
+  // 边界判断
   // proxy data on instance
   const keys = Object.keys(data)
   const props = vm.$options.props
@@ -131,6 +134,7 @@ function initData (vm: Component) {
   while (i--) {
     const key = keys[i]
     if (process.env.NODE_ENV !== 'production') {
+      // 判断data是否与methods里的重名
       if (methods && hasOwn(methods, key)) {
         warn(
           `Method "${key}" has already been defined as a data property.`,
@@ -138,6 +142,7 @@ function initData (vm: Component) {
         )
       }
     }
+    // 判断data是否与props里的重名
     if (props && hasOwn(props, key)) {
       process.env.NODE_ENV !== 'production' && warn(
         `The data property "${key}" is already declared as a prop. ` +
@@ -149,7 +154,7 @@ function initData (vm: Component) {
     }
   }
   // observe data
-  // 对data 进行响应式处理
+  // 递归，对data 进行响应式处理
   observe(data, true /* asRootData */)
 }
 

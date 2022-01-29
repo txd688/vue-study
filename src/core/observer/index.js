@@ -44,6 +44,7 @@ export class Observer {
     this.dep = new Dep()
     this.vmCount = 0
     def(value, '__ob__', this)
+    // 如果是数组
     if (Array.isArray(value)) {
       if (hasProto) {
         protoAugment(value, arrayMethods)
@@ -52,6 +53,7 @@ export class Observer {
       }
       this.observeArray(value)
     } else {
+      // 是对象
       this.walk(value)
     }
   }
@@ -113,7 +115,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
   }
   // 1.响应式。2.动态属性的加入或删除，数组的加入或删除的变更通知。
   let ob: Observer | void
-  // 已经是响应式对象，直接返回，不做重复处理
+  // 判断是否有__ob__，如果是响应式对象，直接返回，不做重复处理
   if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
     ob = value.__ob__
   } else if (
@@ -141,6 +143,7 @@ export function defineReactive (
   customSetter?: ?Function,
   shallow?: boolean
 ) {
+  // 每一个key对应一个dep
   const dep = new Dep()
 
   const property = Object.getOwnPropertyDescriptor(obj, key)
@@ -154,11 +157,12 @@ export function defineReactive (
   if ((!getter || setter) && arguments.length === 2) {
     val = obj[key]
   }
-
+  // 递归处理
   let childOb = !shallow && observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
     configurable: true,
+    // 一个组件一个watcher
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {

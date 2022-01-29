@@ -925,6 +925,7 @@
     this.dep = new Dep();
     this.vmCount = 0;
     def(value, '__ob__', this);
+    // 如果是数组
     if (Array.isArray(value)) {
       if (hasProto) {
         protoAugment(value, arrayMethods);
@@ -933,6 +934,7 @@
       }
       this.observeArray(value);
     } else {
+      // 是对象
       this.walk(value);
     }
   };
@@ -993,7 +995,7 @@
     }
     // 1.响应式。2.动态属性的加入或删除，数组的加入或删除的变更通知。
     var ob;
-    // 已经是响应式对象，直接返回，不做重复处理
+    // 判断是否有__ob__，如果是响应式对象，直接返回，不做重复处理
     if (hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
       ob = value.__ob__;
     } else if (
@@ -1021,6 +1023,7 @@
     customSetter,
     shallow
   ) {
+    // 每一个key对应一个dep
     var dep = new Dep();
 
     var property = Object.getOwnPropertyDescriptor(obj, key);
@@ -1034,11 +1037,12 @@
     if ((!getter || setter) && arguments.length === 2) {
       val = obj[key];
     }
-
+    // 递归处理
     var childOb = !shallow && observe(val);
     Object.defineProperty(obj, key, {
       enumerable: true,
       configurable: true,
+      // 一个组件一个watcher
       get: function reactiveGetter () {
         var value = getter ? getter.call(obj) : val;
         if (Dep.target) {
@@ -4663,6 +4667,7 @@
   function initState (vm) {
     vm._watchers = [];
     var opts = vm.$options;
+    // props、methods、data处理，优先级p》m》d
     if (opts.props) { initProps(vm, opts.props); }
     if (opts.methods) { initMethods(vm, opts.methods); }
     if (opts.data) {
@@ -4726,6 +4731,7 @@
 
   function initData (vm) {
     var data = vm.$options.data;
+    // 判断data是函数还是其他
     data = vm._data = typeof data === 'function'
       ? getData(data, vm)
       : data || {};
@@ -4737,6 +4743,7 @@
         vm
       );
     }
+    // 边界判断
     // proxy data on instance
     var keys = Object.keys(data);
     var props = vm.$options.props;
@@ -4745,6 +4752,7 @@
     while (i--) {
       var key = keys[i];
       {
+        // 判断data是否与methods里的重名
         if (methods && hasOwn(methods, key)) {
           warn(
             ("Method \"" + key + "\" has already been defined as a data property."),
@@ -4752,6 +4760,7 @@
           );
         }
       }
+      // 判断data是否与props里的重名
       if (props && hasOwn(props, key)) {
         warn(
           "The data property \"" + key + "\" is already declared as a prop. " +
@@ -4763,7 +4772,7 @@
       }
     }
     // observe data
-    // 对data 进行响应式处理
+    // 递归，对data 进行响应式处理
     observe(data, true /* asRootData */);
   }
 
@@ -5029,7 +5038,7 @@
       initEvents(vm); // 自定义事件监听
       initRender(vm); // 插槽解析($slots)。 render(h)方法里的h：_c() 和 $createElement()
       callHook(vm, 'beforeCreate'); // 生命周期钩子：beforeCreate
-      // 初始化组件各种状态、响应式
+      // 初始化组件各种状态、响应式处理
       initInjections(vm); // resolve injections before data/props 
       initState(vm); // props、methods、data、computed、watch
       initProvide(vm); // resolve provide after data/props
