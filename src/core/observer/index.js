@@ -41,14 +41,19 @@ export class Observer {
 
   constructor (value: any) {
     this.value = value
+    // 2.  dep? 如果使用Vue.set/delete 添加或删除属性，负责通知更新
     this.dep = new Dep()
     this.vmCount = 0
     def(value, '__ob__', this)
+    // 1. 分辨传入对象类型
     // 如果是数组
     if (Array.isArray(value)) {
+      // 判断是否为ie
       if (hasProto) {
+        // 覆盖7个方法数组原型方法
         protoAugment(value, arrayMethods)
       } else {
+        // 如果是ie
         copyAugment(value, arrayMethods, arrayKeys)
       }
       this.observeArray(value)
@@ -88,6 +93,8 @@ export class Observer {
  */
 function protoAugment (target, src: Object) {
   /* eslint-disable no-proto */
+  // 覆盖当前数组实例的原型
+  // 只会影响当前数组实例本身
   target.__proto__ = src
   /* eslint-enable no-proto */
 }
@@ -110,6 +117,7 @@ function copyAugment (target: Object, src: Object, keys: Array<string>) {
  * or the existing observer if the value already has one.
  */
 export function observe (value: any, asRootData: ?boolean): Observer | void {
+  // 不是对象 或者 虚拟dom实例 return
   if (!isObject(value) || value instanceof VNode) {
     return
   }
@@ -125,6 +133,7 @@ export function observe (value: any, asRootData: ?boolean): Observer | void {
     Object.isExtensible(value) &&
     !value._isVue
   ) {
+    // 初始化传入需要响应式的对象
     ob = new Observer(value)
   }
   if (asRootData && ob) {
@@ -165,10 +174,14 @@ export function defineReactive (
     // 一个组件一个watcher
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
+      // 如果存在，说明此次调用触发者是一个Watcher实例
       if (Dep.target) {
+        // 建立dep 和 Dep.target 之间依赖关系
         dep.depend()
         if (childOb) {
+          // 建立ob 内部dep 和 Dep.target 之间依赖关系
           childOb.dep.depend()
+          // 如果是数组，数组内部所有项都要做相同处理
           if (Array.isArray(value)) {
             dependArray(value)
           }
